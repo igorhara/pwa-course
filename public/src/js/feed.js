@@ -4,6 +4,19 @@ var closeCreatePostModalButton = document.querySelector('#close-create-post-moda
 
 function openCreatePostModal() {
   createPostArea.style.display = 'block';
+  if(defferredPromptEvent){
+    defferredPromptEvent.prompt();
+    defferredPromptEvent.userChoice.then(choiceResult=>{
+      console.log(choiceResult.outcome);
+      if(choiceResult.outcome=== 'dismissed'){
+        console.log('user dismissed install prompt');
+      }else{
+        console.log('user accepted install prompt');
+        
+      }
+    });
+    defferredPromptEvent = null;
+  }
 }
 
 function closeCreatePostModal() {
