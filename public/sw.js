@@ -66,7 +66,7 @@ self.addEventListener("activate", function(event) {
 
 //cache then network
 self.addEventListener("fetch", function(event) {
-  var url = "https://httpbin.org/get";
+  var url = "https://pwa-igor-course.firebaseio.com/posts.json";
   if (event.request.url.indexOf(url) > -1) {
     event.respondWith(
       caches.open(CACHE_DYNAMIC_NAME).then(cache => {
