@@ -108,18 +108,11 @@ fetch(url)
     updateUI(objectToArray(data));
   });
 
-if ("caches" in window) {
-  caches
-    .match(url)
-    .then(resp => {
-      if (resp) {
-        return resp.json();
-      }
-    })
-    .then(data => {
-      console.log("from cache", data);
-      if (!networkDataReceived) {
-        updateUI(objectToArray(data));
-      }
-    });
+if ("indexedDB" in window) {
+  readAllData('posts').then(data=>{
+    if(!networkDataReceived){
+      console.log('From cache',data);
+      updateUI(data);
+    }
+  })
 }

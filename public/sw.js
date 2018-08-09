@@ -1,4 +1,6 @@
-var CACHE_STATIC_NAME = "static-v2";
+importScripts("/src/js/idb.js");
+importScripts("/src/js/utility.js");
+var CACHE_STATIC_NAME = "static-v1";
 var CACHE_DYNAMIC_NAME = "dynamic-v1";
 var STATIC_FILES = [
   "/",
@@ -6,6 +8,7 @@ var STATIC_FILES = [
   "/offline.html",
   "/src/js/app.js",
   "/src/js/feed.js",
+  "/src/js/idb.js",
   "/src/js/material.min.js",
   "/src/css/app.css",
   "/src/css/feed.css",
@@ -31,8 +34,9 @@ var STATIC_FILES = [
 
 function isInArray(string, array) {
   var cachePath;
-  if (string.indexOf(self.origin) === 0) { // request targets domain where we serve the page from (i.e. NOT a CDN)
-    console.log('matched ', string);
+  if (string.indexOf(self.origin) === 0) {
+    // request targets domain where we serve the page from (i.e. NOT a CDN)
+    console.log("matched ", string);
     cachePath = string.substring(self.origin.length); // take the part of the URL AFTER the domain (e.g. after localhost:8080)
   } else {
     cachePath = string; // store the full request (for CDNs)
@@ -71,12 +75,16 @@ self.addEventListener("fetch", function(event) {
   var url = "https://pwa-igor-course.firebaseio.com/posts.json";
   if (event.request.url.indexOf(url) > -1) {
     event.respondWith(
-      caches.open(CACHE_DYNAMIC_NAME).then(cache => {
-        return fetch(event.request).then(response => {
-          // trimCache(CACHE_DYNAMIC_NAME,3);
-          cache.put(event.request.url, response.clone());
-          return response;
+      fetch(event.request).then(response => {
+        var clonedRes = response.clone();
+        clearAllData("posts").then(() => {
+          clonedRes.json().then(data => {
+            for (let key in data) {
+              writeData("posts", data[key]);
+            }
+          });
         });
+        return response;
       })
     );
   } else if (isInArray(STATIC_FILES, event.request.url)) {
